@@ -183,7 +183,6 @@ Resources:
         - Key: Name
           Value: PublicWebServer
 
-  # Private EC2 Instance in eu-central-1b
   PrivateEC2Instance:
     Type: AWS::EC2::Instance
     Properties:
@@ -197,7 +196,6 @@ Resources:
         - Key: Name
           Value: PrivateInstance
 
-  # S3 Bucket for VPC Flow Logs
   FlowLogsBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -206,7 +204,6 @@ Resources:
         - Key: Name
           Value: VPCFlowLogsBucket
 
-  # VPC Flow Logs
   VPCFlowLogs:
     Type: AWS::EC2::FlowLog
     DependsOn: FlowLogsBucket
@@ -217,7 +214,6 @@ Resources:
       LogDestinationType: s3
       LogDestination: !Sub arn:aws:s3:::${FlowLogsBucket}
 
-# Outputs
 Outputs:
   PublicEC2PublicIP:
     Description: Public IP of the web server
