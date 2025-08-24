@@ -246,7 +246,7 @@ Resources:
       TrafficType: ALL
       LogDestinationType: s3
       LogDestination: !Sub arn:aws:s3:::${FlowLogsBucket}
-
+ 
 Outputs:
   PublicEC2PublicIP:
     Description: Public IP of the web server
