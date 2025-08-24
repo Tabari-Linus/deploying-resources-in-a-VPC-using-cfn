@@ -31,7 +31,7 @@ Resources:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
 
-  PublicSubnet:
+  PublicSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
@@ -40,9 +40,20 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: PublicSubnet
+          Value: PublicSubnetA
+  
+  PublicSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone: eu-central-1a
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: PublicSubnetB
 
-  PrivateSubnet:
+  PrivateSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
@@ -50,7 +61,17 @@ Resources:
       AvailabilityZone: eu-central-1b
       Tags:
         - Key: Name
-          Value: PrivateSubnet
+          Value: PrivateSubnetA
+  
+  PrivateSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.4.0/24
+      AvailabilityZone: eu-central-1b
+      Tags:
+        - Key: Name
+          Value: PrivateSubnetB
 
   NatGatewayEIP:
     Type: AWS::EC2::EIP
@@ -61,7 +82,7 @@ Resources:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt NatGatewayEIP.AllocationId
-      SubnetId: !Ref PublicSubnet
+      SubnetId: !Ref PublicSubnetA
       Tags:
         - Key: Name
           Value: LabNatGateway
@@ -96,16 +117,28 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NatGateway
 
-  PublicSubnetRouteTableAssociation:
+  PublicSubnetARouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref PublicSubnet
+      SubnetId: !Ref PublicSubnetA
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnetBRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetB
       RouteTableId: !Ref PublicRouteTable
 
   PrivateSubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref PrivateSubnet
+      SubnetId: !Ref PrivateSubnetA
+      RouteTableId: !Ref PrivateRouteTable
+  
+  PrivateSubnetBRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnetB
       RouteTableId: !Ref PrivateRouteTable
 
   PublicSecurityGroup:
@@ -167,7 +200,7 @@ Resources:
     Properties:
       InstanceType: t3.micro
       ImageId: !Ref LatestAmazonLinux2AMI
-      SubnetId: !Ref PublicSubnet
+      SubnetId: !Ref PublicSubnetA
       SecurityGroupIds:
         - !Ref PublicSecurityGroup
       IamInstanceProfile: !Ref InstanceProfile
@@ -188,7 +221,7 @@ Resources:
     Properties:
       InstanceType: t3.micro
       ImageId: !Ref LatestAmazonLinux2AMI
-      SubnetId: !Ref PrivateSubnet
+      SubnetId: !Ref PrivateSubnetA
       SecurityGroupIds:
         - !Ref PrivateSecurityGroup
       IamInstanceProfile: !Ref InstanceProfile
@@ -218,6 +251,9 @@ Outputs:
   PublicEC2PublicIP:
     Description: Public IP of the web server
     Value: !GetAtt PublicEC2Instance.PublicIp
+  PublicEC2PublicDNS:
+    Description: Public DNS name of the web server
+    Value: !GetAtt PublicEC2Instance.PublicDnsName
   WebServerURL:
     Description: URL to access the web server
     Value: !Sub http://${PublicEC2Instance.PublicIp}
