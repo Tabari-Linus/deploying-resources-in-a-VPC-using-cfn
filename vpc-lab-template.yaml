@@ -25,6 +25,7 @@ Resources:
         - Key: Name
           Value: LabIGW
 
+
   GatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
